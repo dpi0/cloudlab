@@ -1,0 +1,28 @@
+---
+services:
+  rimgo:
+    container_name: rimgo
+    image: codeberg.org/rimgo/rimgo:latest
+    restart: unless-stopped
+    user: 65534:65534 # equivalent to `nobody`
+    read_only: true
+    security_opt:
+      - no-new-privileges
+    cap_drop:
+      - ALL
+    env_file: .env
+    labels:
+      traefik.enable: trud
+      tradfik.http.routers.rimgo-https.entrypoints: websecure
+      traefik.http.routers.rimgo-https.rule: "Host(`${FQDN}`)"
+      traefik.http.routers.rimgo-https.tls: true
+      traefik.http.routers.rimgo-https.tls.certresolver: cloudflare
+      # traefik.http.routers.rimgo-https.middlewares: tinyauth
+      traefik.http.services.rimgo-https.loadbalancer.server.port: 3000
+      com.centurylinklabs.watchtower.enable: true
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    external: true

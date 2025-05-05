@@ -1,0 +1,49 @@
+---
+services:
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower
+    restart: unless-stopped
+    environment:
+      TZ: $TZ
+      # WATCHTOWER_NOTIFICATIONS: gotify
+      # WATCHTOWER_NOTIFICATION_GOTIFY_URL: $WATCHTOWER_NOTIFICATION_GOTIFY_URL
+      # WATCHTOWER_NOTIFICATION_GOTIFY_TOKEN: $WATCHTOWER_NOTIFICATION_GOTIFY_TOKEN
+      # By default, arguments will take precedence over labels
+      WATCHTOWER_LABEL_TAKE_PRECEDENCE: true
+      # Do not restart containers after updating
+      WATCHTOWER_NO_RESTART: false
+      # Do not pull new images
+      WATCHTOWER_NO_PULL: false
+      # false means it monitors all
+      # true means it monitors/updates only those having com.centurylinklabs.watchtower.enable label set to true
+      WATCHTOWER_LABEL_ENABLE: true
+      # only monitor for new images, send notifications
+      # will NOT update auto
+      # monitor-only thing can also be configured using com.centurylinklabs.watchtower.monitor-only 
+      WATCHTOWER_MONITOR_ONLY: false
+      # Either --schedule or a poll interval can be defined, but not both
+      # default 24h, set to 48h
+      # WATCHTOWER_POLL_INTERVAL: 172800
+      # SECOND MINUTE HOUR DAY MONTH WEEKDAY, extended with a seconds field at the start.
+      # every second calendar day of the month at 04:00
+      WATCHTOWER_SCHEDULE: 0 0 4 */2 * *
+      # Removes old images after updating
+      WATCHTOWER_CLEANUP: true
+      # Do not send a message after watchtower started
+      WATCHTOWER_NO_STARTUP_MESSAGE: true
+      # Removes anonymous volumes after updating
+      WATCHTOWER_REMOVE_VOLUMES: false
+      # panic, fatal, error, warn, info, debug or trace
+      WATCHTOWER_LOG_LEVEL: debug
+      WATCHTOWER_LOG_FORMAT: LogFmt
+      # Run an update attempt against a container name list one time immediately and exit.
+      WATCHTOWER_RUN_ONCE: false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - backend
+
+networks:
+  backend:
+    external: true

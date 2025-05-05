@@ -1,0 +1,23 @@
+---
+services:
+  dufs:
+    container_name: dufs
+    image: sigoden/dufs:latest
+    volumes:
+      - $VOLUME/dufs/data:/data
+    command: "/data --allow-search --render-spa --allow-archive --render-index --render-try-index"
+    labels:
+      traefik.enable: true
+      traefik.http.routers.dufs-https.entrypoints: websecure
+      traefik.http.routers.dufs-https.rule: "Host(`${FQDN}`)"
+      traefik.http.routers.dufs-https.tls: true
+      traefik.http.routers.dufs-https.tls.certresolver: cloudflare
+      # traefik.http.routers.dufs-https.middlewares: tinyauth
+      traefik.http.services.dufs-https.loadbalancer.server.port: 5000
+      com.centurylinklabs.watchtower.enable: true
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    external: true

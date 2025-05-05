@@ -1,0 +1,27 @@
+---
+services:
+  bin:
+    container_name: bin
+    image: wantguns/bin:latest
+    environment:
+      - BIN_PORT=6163 # Defaults to 6162
+      - BIN_LIMITS={form="16 MiB"}
+      - BIN_CLIENT_DESC=placeholder
+    user: "1000"
+    volumes:
+      - $VOLUME/bin/upload:/upload # upload folder will have your pastes
+    labels:
+      traefik.enable: true
+      traefik.http.routers.bin-https.entrypoints: websecure
+      traefik.http.routers.bin-https.rule: "Host(`${FQDN}`)"
+      traefik.http.routers.bin-https.tls: true
+      traefik.http.routers.bin-https.tls.certresolver: cloudflare
+      # traefik.http.routers.bin-https.middlewares: tinyauth
+      traefik.http.services.bin-https.loadbalancer.server.port: 6163
+      com.centurylinklabs.watchtower.enable: true
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    external: true

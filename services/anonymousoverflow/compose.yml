@@ -1,0 +1,24 @@
+---
+services:
+  anonymousoverflow:
+    container_name: anonymousoverflow
+    image: ghcr.io/httpjamesm/anonymousoverflow:release
+    restart: unless-stopped
+    environment:
+      APP_URL: ${FQDN}
+      JWT_SIGNING_SECRET: $SECRET
+    labels:
+      traefik.enable: trud
+      tradfik.http.routers.anonymousoverflow-https.entrypoints: websecure
+      traefik.http.routers.anonymousoverflow-https.rule: "Host(`${FQDN}`)"
+      traefik.http.routers.anonymousoverflow-https.tls: true
+      traefik.http.routers.anonymousoverflow-https.tls.certresolver: cloudflare
+      # traefik.http.routers.anonymousoverflow-https.middlewares: tinyauth
+      traefik.http.services.anonymousoverflow-https.loadbalancer.server.port: 8080
+      com.centurylinklabs.watchtower.enable: true
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    external: true
