@@ -1,0 +1,29 @@
+---
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:latest
+    restart: unless-stopped
+    environment:
+      CF_DNS_API_TOKEN: $CF_DNS_API_TOKEN
+      TZ: $TZ
+    volumes:
+      - ./config/traefik.yml:/etc/traefik/traefik.yaml:ro
+      # - ./config/conf/:/etc/traefik/conf/
+      - $VOLUME/traefik/data/certs:/etc/traefik/certs:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      com.centurylinklabs.watchtower.enable: true
+    ports:
+      - 80:80
+      - 443:443
+      # - $TRAEFIK_PORT:8080 # dashboard, avoid in production
+    networks:
+      - frontend
+      - backend
+
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true

@@ -1,0 +1,42 @@
+---
+services:
+  redlib:
+    container_name: redlib
+    image: quay.io/redlib/redlib:latest
+    restart: unless-stopped
+    env_file: .env
+    user: nobody
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--spider",
+          "-q",
+          "--tries=1",
+          "http://localhost:8080/settings",
+        ]
+      interval: 5m
+      timeout: 3s
+    labels:
+      traefik.enable: true
+      traefik.http.routers.redlib-https.entrypoints: websecure
+      traefik.http.routers.redlib-https.rule: "Host(`${FQDN}`)"
+      traefik.http.routers.redlib-https.tls: true
+      traefik.http.routers.redlib-https.tls.certresolver: cloudflare
+      # traefik.http.routers.redlib-https.middlewares: tinyauth
+      # traefik.http.services.redlib-https.loadbalancer.server.port: 8080
+      com.centurylinklabs.watchtower.enable: true
+    ports:
+      - 8080:8080
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    external: true
