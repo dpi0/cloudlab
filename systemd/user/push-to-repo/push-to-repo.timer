@@ -1,0 +1,9 @@
+[Unit]
+Description=Push to Repo Every 2 Days at 0200
+
+[Timer]
+OnCalendar=*-*-* 02:00:00 Asia/Kolkata
+Persistent=true
+
+[Install]
+WantedBy=timers.target

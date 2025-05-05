@@ -1,0 +1,9 @@
+[Unit]
+Description=Push to Repo Every 2 Days
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/push-to-repo.sh
+WorkingDirectory=%h
+Environment="HOME=%h"
