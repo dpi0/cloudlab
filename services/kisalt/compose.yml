@@ -1,0 +1,25 @@
+---
+services:
+  kisalt:
+    container_name: kisalt
+    image: ghcr.io/ngn13/kisalt:latest
+    restart: unless-stopped
+    environment:
+      URL: ${FQDN}
+    volumes:
+      - $VOLUME/kisalt/data:/data
+    labels:
+      traefik.enable: true
+      traefik.http.routers.kisalt.entrypoints: websecure
+      traefik.http.routers.kisalt.rule: "Host(`${FQDN}`)"
+      traefik.http.routers.kisalt.tls: true
+      traefik.http.routers.kisalt.tls.certresolver: cloudflare
+      # traefik.http.routers.kisalt.middlewares: tinyauth
+      traefik.http.services.kisalt.loadbalancer.server.port: 8080
+      com.centurylinklabs.watchtower.enable: true
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    external: true
