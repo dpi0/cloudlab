@@ -4,7 +4,7 @@ services:
     container_name: dufs
     image: sigoden/dufs:latest
     volumes:
-      - $VOLUME/dufs/data:/data
+      - $VOLUME/bin/upload:/data
     command: "/data --allow-search --render-spa --allow-archive --render-index --render-try-index"
     labels:
       traefik.enable: true
