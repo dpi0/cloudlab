@@ -32,8 +32,6 @@ services:
       # traefik.http.routers.redlib-https.middlewares: tinyauth
       # traefik.http.services.redlib-https.loadbalancer.server.port: 8080
       com.centurylinklabs.watchtower.enable: true
-    ports:
-      - 8080:8080
     networks:
       - frontend
 

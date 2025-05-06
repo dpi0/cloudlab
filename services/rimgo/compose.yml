@@ -12,8 +12,8 @@ services:
       - ALL
     env_file: .env
     labels:
-      traefik.enable: trud
-      tradfik.http.routers.rimgo-https.entrypoints: websecure
+      traefik.enable: true
+      traefik.http.routers.rimgo-https.entrypoints: websecure
       traefik.http.routers.rimgo-https.rule: "Host(`${FQDN}`)"
       traefik.http.routers.rimgo-https.tls: true
       traefik.http.routers.rimgo-https.tls.certresolver: cloudflare
