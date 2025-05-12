@@ -1,0 +1,28 @@
+---
+services:
+  fourget:
+    container_name: fourget
+    image: luuul/4get:latest
+    restart: unless-stopped
+    environment:
+      # http for traefik
+      FOURGET_PROTO: http
+      FOURGET_SERVER_NAME: ${FQDN}
+      FOURGET_BOT_PROTECTION: 0
+    # volumes:
+    #   - $VOLUME/4get/captcha:/var/www/html/4get/data/captcha
+    labels:
+      traefik.enable: true
+      traefik.http.routers.fourget.entrypoints: websecure
+      traefik.http.routers.fourget.rule: "Host(`${FQDN}`)"
+      traefik.http.routers.fourget.tls: true
+      traefik.http.routers.fourget.tls.certresolver: cloudflare
+      # traefik.http.routers.fourget.middlewares: tinyauth
+      traefik.http.services.fourget.loadbalancer.server.port: 80
+      com.centurylinklabs.watchtower.enable: true
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    external: true
