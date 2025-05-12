@@ -4,9 +4,9 @@ services:
     container_name: bin
     image: wantguns/bin:latest
     environment:
-      - BIN_PORT=6163 # Defaults to 6162
-      - BIN_LIMITS={form="16 MiB"}
-      - BIN_CLIENT_DESC=placeholder
+      BIN_PORT: 6163 # Defaults to 6162
+      BIN_LIMITS: '{form="16 MiB"}'
+      BIN_CLIENT_DESC: placeholder
     user: "1000"
     volumes:
       - $VOLUME/bin/upload:/upload # upload folder will have your pastes

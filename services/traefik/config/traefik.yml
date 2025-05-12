@@ -9,7 +9,7 @@ log:
   # level: INFO
 
 api:
-  dashboard: true
+  dashboard: false
   insecure: true
   debug: false
 

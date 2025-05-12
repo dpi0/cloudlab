@@ -20,7 +20,6 @@ services:
       - $VOLUME/backrest/cache:/cache
       - $VOLUME/backrest/tmp:/tmp
       - $HOME:$HOME
-      - $BACKUP:$BACKUP
       - $VOLUME/backrest/rclone:/root/.config/rclone
       - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:

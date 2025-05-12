@@ -10,6 +10,7 @@ services:
       # https://forgejo.org/docs/latest/admin/config-cheat-sheet/
       FORGEJO__repository__ENABLE_PUSH_CREATE_USER: true
       FORGEJO__service__DISABLE_REGISTRATION: true
+      FORGEJO__server__SSH_PORT: $SSH_PORT
     volumes:
       - $VOLUME/forgejo/data:/data
       - /etc/timezone:/etc/timezone:ro
