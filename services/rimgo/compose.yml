@@ -17,7 +17,7 @@ services:
       traefik.http.routers.rimgo-https.rule: "Host(`${FQDN}`)"
       traefik.http.routers.rimgo-https.tls: true
       traefik.http.routers.rimgo-https.tls.certresolver: cloudflare
-      # traefik.http.routers.rimgo-https.middlewares: tinyauth
+      traefik.http.routers.rimgo-https.middlewares: tinyauth
       traefik.http.services.rimgo-https.loadbalancer.server.port: 3000
       com.centurylinklabs.watchtower.enable: true
     networks:

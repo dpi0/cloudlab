@@ -1,0 +1,59 @@
+---
+services:
+  tinyauth:
+    container_name: tinyauth
+    image: ghcr.io/steveiliop56/tinyauth:v3
+    restart: unless-stopped
+    environment:
+      # https://tinyauth.app/docs/reference/configuration.html
+      PORT: 3000
+      APP_URL: https://${FQDN}
+      SECRET: $SECRET # can use a secret_file for this as well
+      # https://tinyauth.app/docs/guides/github-app-oauth.html#setting-up-tinyauth-with-github-apps
+      # Since you have OAuth enabled, 
+      # you can now remove the USERS or USERS_FILE environment variables 
+      # so as you can only login with your OAuth provider.
+      # USERS: ${USERS} # better to use a seperate users_file than this, formatting issues in .env
+      # USERS_FILE: users_file
+      # SECRET_FILE: secret_file
+      COOKIE_SECURE: true
+      DISABLE_CONTINUE: true
+      OAUTH_WHITELIST: $OAUTH_WHITELIST # allow only certain users via OAuth, using emails/usernames
+      SESSION_EXPIRY: 86400 # default, cookie and session expiry in seconds
+      LOG_LEVEL: 0
+      APP_TITLE: 'TinyAuth'
+      LOGIN_MAX_RETRIES: 5 # default, max retries to login after which the account gets locked
+      LOGIN_TIMEOUT: 300 # default, timeout in seconds for the locked accounts
+      OAUTH_AUTO_REDIRECT: github # Automatically redirect to your OAuth provider on login
+      GITHUB_CLIENT_ID: $GITHUB_CLIENT_ID
+      GITHUB_CLIENT_SECRET: $GITHUB_CLIENT_SECRET
+      # GITHUB_CLIENT_SECRET_FILE: github_secret_file
+    # volumes:
+    #   - $VOLUME/tinyauth/config/users_file:/tinyauth/users_file
+      # - $VOLUME/tinyauth/config/secret_file:/tinyauth/secret_file
+    # https://reddit.com/r/selfhosted/comments/1ju7gmz/tinyauth_just_reached_1000_stars/mm11j2j/?context=3#mm11j2j
+    # only "security issue" it has is that if somebody manages to get your session cookie 
+    # he will be able to login to tinyauth until the built-in cookie expiration date comes (drawback of being stateless).
+    # tinyauth just sets a cookie using a secure cookie store it is as secure as the cookie store itself (really secure) 
+    # but it's relatively new and it has not been battle tested
+    labels:
+      traefik.enable: true
+      # traefik.http.routers.tinyauth.entrypoints: web
+      # traefik.http.routers.tinyauth.rule: "Host(`${FQDN}`)"
+      # traefik.http.middlewares.tinyauth-https-redirect.redirectscheme.scheme: https
+      # traefik.http.routers.tinyauth.middlewares: tinyauth-https-redirect
+      traefik.http.routers.tinyauth-secure.entrypoints: websecure
+      traefik.http.routers.tinyauth-secure.rule: "Host(`${FQDN}`)"
+      traefik.http.routers.tinyauth-secure.tls: true
+      traefik.http.routers.tinyauth-secure.tls.certresolver: cloudflare
+      traefik.http.routers.tinyauth-secure.service: tinyauth
+      traefik.http.middlewares.tinyauth.forwardauth.address: http://tinyauth:3000/api/auth/traefik
+      traefik.http.services.tinyauth.loadbalancer.server.port: 3000
+      com.centurylinklabs.watchtower.enable: true
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    external: true
+
