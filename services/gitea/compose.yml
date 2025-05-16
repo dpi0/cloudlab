@@ -1,0 +1,95 @@
+---
+services:
+  gitea-server:
+    container_name: gitea-server
+    image: docker.gitea.com/gitea:latest
+    restart: unless-stopped
+    environment:
+      USER_UID: $PUID
+      USER_GID: $PGID
+      # https://docs.gitea.com/next/administration/config-cheat-sheet#actions-actions
+      # format is this:
+      # GITEA__service-name-in-the-cheat-sheet__CONFIG_OPTION: value
+      GITEA__server__SSH_PORT: $SSH_PORT
+      GITEA__server__SSH_DOMAIN: ${SSH_FQDN}
+      # Landing page for unauthenticated users [home, explore, organizations, login, custom]
+      GITEA__server__LANDING_PAGE: explore
+      # Allow authentication via OpenID
+      GITEA__openid__ENABLE_OPENID_SIGNIN: false
+      # Update avatar if available from the OAuth2 provider.
+      GITEA__oauth2_client__UPDATE_AVATAR: true
+      # after which only admin can create accounts for users.
+      GITEA__service__DISABLE_REGISTRATION: true
+      # Disable this to force users to log in through external authentication sources.
+      # GITEA__service__ENABLE_INTERNAL_SIGNIN: false
+      GITEA__service__ENABLE_PASSWORD_SIGNIN_FORM: false
+      # Disable this to disallow authentication using HTTP BASIC and the user’s password
+      GITEA__service__ENABLE_BASIC_AUTHENTICATION: false
+      # Allow users to push local repositories to Forgejo and have them automatically created for a user
+      GITEA__repository__ENABLE_PUSH_CREATE_USER: true
+      GITEA__ui__DEFAULT_THEME: edge-auto
+      GITEA__ui__THEMES: auto,gitea,arc-green,edge-auto,edge-dark,edge-light,everforest-auto,everforest-dark,everforest-light,gruvbox-auto,gruvbox-dark,gruvbox-light,gruvbox-material-auto,gruvbox-material-dark,gruvbox-material-light,nord,palenight,soft-era,sonokai,sonokai-andromeda,sonokai-atlantis,sonokai-espresso,sonokai-maia,sonokai-shusia
+    volumes:
+      - $VOLUME/gitea/data:/data
+      - /srv/gitea/build:/build
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    labels:
+      traefik.enable: true
+      traefik.http.routers.gitea.entrypoints: websecure
+      traefik.http.routers.gitea.rule: "Host(`${FQDN}`)"
+      traefik.http.routers.gitea.tls: true
+      traefik.http.routers.gitea.tls.certresolver: cloudflare
+      # traefik.http.routers.gitea.middlewares: tinyauth
+      traefik.http.services.gitea.loadbalancer.server.port: 3000
+      com.centurylinklabs.watchtower.enable: true
+    ports:
+    - $SSH_PORT:22
+    networks:
+    - frontend
+    - backend
+
+  gitea-runner:
+    container_name: gitea-runner
+    image: docker.io/gitea/act_runner:latest
+    restart: unless-stopped
+    environment:
+      CONFIG_FILE: /data/config.yaml
+      GITEA_INSTANCE_URL: https://${FQDN}
+      GITEA_RUNNER_REGISTRATION_TOKEN: ${GITEA_RUNNER_REGISTRATION_TOKEN}
+      GITEA_RUNNER_NAME: gitea-runner
+      # GITEA_RUNNER_LABELS: "ubuntu-20.04:docker://gitea/runner-images:ubuntu-20.04"
+    volumes:
+      - $VOLUME/gitea/runner/data:/data
+      - /srv/gitea/build:/build
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - backend
+    depends_on:
+      - gitea-server
+
+  gitea-nginx:
+    container_name: gitea-nginx
+    image: nginx:alpine
+    restart: unless-stopped
+    volumes:
+      - $SERVE_PATH:/usr/share/nginx/html:ro
+    labels:
+      traefik.enable: true
+      traefik.http.routers.gitea-nginx.entrypoints: websecure
+      traefik.http.routers.gitea-nginx.rule: "Host(`${NGINX_FQDN}`)"
+      traefik.http.routers.gitea-nginx.tls: true
+      traefik.http.routers.gitea-nginx.tls.certresolver: cloudflare
+      traefik.http.routers.gitea-nginx.middlewares: tinyauth
+      traefik.http.services.gitea-nginx.loadbalancer.server.port: 80
+      com.centurylinklabs.watchtower.enable: true
+    networks:
+      - frontend
+      - backend
+
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
+
