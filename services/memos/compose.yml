@@ -1,0 +1,50 @@
+---
+services:
+  memos:
+    container_name: memos
+    image: neosmemo/memos:stable
+    restart: unless-stopped
+    environment:
+      MEMOS_PORT: 5230
+      MEMOS_DATA: /var/opt/memos
+      MEMOS_DRIVER: sqlite
+    volumes:
+      - $VOLUME/memos/data:/var/opt/memos
+    labels:
+      traefik.enable: true
+      traefik.http.routers.memos.entrypoints: websecure
+      traefik.http.routers.memos.rule: "Host(`${FQDN}`)"
+      traefik.http.routers.memos.tls: true
+      traefik.http.routers.memos.tls.certresolver: cloudflare
+      # traefik.http.routers.memos.middlewares: tinyauth
+      traefik.http.services.memos.loadbalancer.server.port: 5230
+      com.centurylinklabs.watchtower.enable: true
+    networks:
+      - frontend
+
+  memos-backup:
+    container_name: memos-backup
+    image: alpine:latest
+    restart: always
+    volumes:
+      - $VOLUME/memos/data:/data:ro
+      - $VOLUME/memos/backups:/backups
+    # runs every 24h at 0200, running backups without stopping the container using sqlite3 built-in backup
+    command: >
+      sh -c "
+        apk add --no-cache sqlite tzdata &&
+        mkdir -p /backups &&
+        echo '0 2 * * * sqlite3 /data/memos_prod.db \".backup /backups/memos-backup-\$$(date +\\%Y\\%m\\%d-\\%H\\%M\\%S).db\"' > /var/spool/cron/crontabs/root &&
+        crond -f
+      "
+    # to manually run: `docker exec memos-backup sh -c "sqlite3 /data/memos_prod.db '.backup /backups/memos-backup-manual-test.db'"`
+    # `docker exec memos-backup ls -lah /backups`
+    # to check health/status: `docker exec memos-backup sqlite3 /backups/memos-backup-manual-test.db ".tables"`
+    networks:
+      - backend
+
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
