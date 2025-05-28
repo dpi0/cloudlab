@@ -19,7 +19,7 @@ services:
       COOKIE_SECURE: true
       DISABLE_CONTINUE: true
       OAUTH_WHITELIST: $OAUTH_WHITELIST # allow only certain users via OAuth, using emails/usernames
-      SESSION_EXPIRY: 86400 # default, cookie and session expiry in seconds
+      SESSION_EXPIRY: 604800 # default, cookie and session expiry in seconds, currently set to 1 week 
       LOG_LEVEL: 0
       APP_TITLE: 'TinyAuth'
       LOGIN_MAX_RETRIES: 5 # default, max retries to login after which the account gets locked
