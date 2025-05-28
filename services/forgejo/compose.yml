@@ -8,9 +8,25 @@ services:
       USER_UID: $PUID
       USER_GID: $PGID
       # https://forgejo.org/docs/latest/admin/config-cheat-sheet/
-      FORGEJO__repository__ENABLE_PUSH_CREATE_USER: true
-      FORGEJO__service__DISABLE_REGISTRATION: true
+      # format is this:
+      # FORGEJO__service-name-in-the-cheat-sheet__CONFIG_OPTION: value
       FORGEJO__server__SSH_PORT: $SSH_PORT
+      FORGEJO__server__SSH_DOMAIN: ${SSH_FQDN}
+      # Landing page for unauthenticated users [home, explore, organizations, login, custom]
+      FORGEJO__server__LANDING_PAGE: explore
+      # Allow authentication via OpenID
+      FORGEJO__openid__ENABLE_OPENID_SIGNIN: false
+      # Update avatar if available from the OAuth2 provider.
+      FORGEJO__oauth2_client__UPDATE_AVATAR: true
+      # after which only admin can create accounts for users.
+      FORGEJO__service__DISABLE_REGISTRATION: true
+      # Disable this to force users to log in through external authentication sources.
+      FORGEJO__service__ENABLE_INTERNAL_SIGNIN: false
+      # Disable this to disallow authentication using HTTP BASIC and the user’s password
+      FORGEJO__service__ENABLE_BASIC_AUTHENTICATION: false
+
+      # Allow users to push local repositories to Forgejo and have them automatically created for a user
+      FORGEJO__repository__ENABLE_PUSH_CREATE_USER: true
     volumes:
       - $VOLUME/forgejo/data:/data
       - /etc/timezone:/etc/timezone:ro
