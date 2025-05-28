@@ -3,6 +3,7 @@ services:
   bin:
     container_name: bin
     image: wantguns/bin:latest
+    restart: unless-stopped
     environment:
       BIN_PORT: 6163 # Defaults to 6162
       BIN_LIMITS: '{form="16 MiB"}'

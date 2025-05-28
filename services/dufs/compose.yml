@@ -3,6 +3,7 @@ services:
   dufs:
     container_name: dufs
     image: sigoden/dufs:latest
+    restart: unless-stopped
     volumes:
       - $VOLUME/bin/upload:/data
     command: "/data --allow-search --render-spa --allow-archive --render-index --render-try-index"
