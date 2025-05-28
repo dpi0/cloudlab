@@ -29,8 +29,8 @@ services:
       traefik.http.routers.redlib-https.rule: "Host(`${FQDN}`)"
       traefik.http.routers.redlib-https.tls: true
       traefik.http.routers.redlib-https.tls.certresolver: cloudflare
-      traefik.http.routers.redlib-https.middlewares: tinyauth
-      # traefik.http.services.redlib-https.loadbalancer.server.port: 8080
+      # traefik.http.routers.redlib-https.middlewares: tinyauth
+      traefik.http.services.redlib-https.loadbalancer.server.port: 8080
       com.centurylinklabs.watchtower.enable: true
     networks:
       - frontend
