@@ -1,0 +1,39 @@
+---
+services:
+  # why use it to only build and not serve directly? <https://squidfunk.github.io/mkdocs-material/getting-started/#with-docker>
+  # web server used by MkDocs for live previews is not designed for production use 
+  # and may have security vulnerabilities.
+  mkdocs-builder:
+    container_name: mkdocs-builder
+    image: ghcr.io/dpi0/mkdocs-material-custom:main
+    volumes:
+      - $REPO_PATH:/docs
+      - $SERVE_PATH:/site
+    working_dir: /docs
+    entrypoint: ["mkdocs", "build", "--clean", "-d", "/site"]
+    networks:
+      - backend
+
+  nginx-serve:
+    container_name: nginx-serve
+    image: nginx:alpine
+    restart: unless-stopped
+    volumes:
+      - $SERVE_PATH:/usr/share/nginx/html:ro
+    labels:
+      traefik.enable: true
+      traefik.http.routers.nginx-serve.entrypoints: websecure
+      traefik.http.routers.nginx-serve.rule: "Host(`${FQDN}`)"
+      traefik.http.routers.nginx-serve.tls: true
+      traefik.http.routers.nginx-serve.tls.certresolver: cloudflare
+      traefik.http.routers.nginx-serve.middlewares: tinyauth
+      traefik.http.services.nginx-serve.loadbalancer.server.port: 80
+      com.centurylinklabs.watchtower.enable: true
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
