@@ -2,13 +2,29 @@
 services:
   fourget:
     container_name: fourget
-    image: luuul/4get:latest
+    image: ghcr.io/dpi0/4get:main
     restart: unless-stopped
     environment:
-      # http for traefik
+      # list of all env variables: https://git.lolcat.ca/lolcat/4get/src/branch/master/data/config.php
       FOURGET_PROTO: http
-      FOURGET_SERVER_NAME: ${FQDN}
+      FOURGET_SERVER_NAME: '4get'
+      FOURGET_SERVER_SHORT_DESCRIPTION: '4get is a proxy search engine that just works.'
+      # To use "static/themes/Cream.css", specify "Cream".
+      FOURGET_DEFAULT_THEME: 'Dark'
+      FOURGET_API_ENABLED: true
+      # 0 = disabled, 1 = ask for image captcha, @TODO: 2 = invite only (users needs a pass)
       FOURGET_BOT_PROTECTION: 0
+      # if BOT_PROTECTION is set to 1, specify the available datasets here
+      # images should be named from 1.png to X.png, and be 100x100 in size
+      # Eg. data/captcha/birds/1.png up to 2263.png
+      # FOURGET_CAPTCHA_DATASET: ["birds", 2263, "fumo_plushies", 1006, "minecraft", 848]
+      # If this regex expression matches on the user agent, it blocks the request
+      # FOURGET_HEADER_REGEX: '/bot|wget|curl|python-requests|scrapy|go-http-client|ruby|yahoo|spider|qwant/i'
+      # FOURGET_FILTERED_HEADER_KEYS: [x-forwarded-for,x-cluster-client-ip,x-client-ip,x-real-ip,client-ip,real-ip,forwarded-for,forwarded-for-ip,forwarded,proxy-connection,remote-addr,via]
+      # Maximal number of searches per captcha key/pass issued
+      # gets reset on every APCU cache clear
+      # Only useful when BOT_PROTECTION is NOT set to 0
+      # FOURGET_MAX_SEARCHES: 100
     # volumes:
     #   - $VOLUME/4get/captcha:/var/www/html/4get/data/captcha
     labels:
