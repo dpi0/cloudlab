@@ -1,0 +1,24 @@
+---
+services:
+  uptimekuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptimekuma
+    restart: unless-stopped
+    volumes:
+      - $VOLUME/uptimekuma:/app/data
+    labels:
+      traefik.enable: true
+      traefik.http.routers.uptimekuma.entrypoints: websecure
+      traefik.http.routers.uptimekuma.rule: "Host(`${FQDN}`)"
+      traefik.http.routers.uptimekuma.tls: true
+      traefik.http.routers.uptimekuma.tls.certresolver: cloudflare
+        # raefik.http.routers.uptimekuma.middlewares: tinyauth
+      traefik.http.services.uptimekuma.loadbalancer.server.port: 3001
+      com.centurylinklabs.watchtower.enable: true
+    networks:
+    - frontend
+    # network_mode: host
+
+networks:
+  frontend:
+    external: true
